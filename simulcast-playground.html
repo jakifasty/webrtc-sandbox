@@ -287,7 +287,7 @@
     <div>
       <video controls playsinline id="videoRecorded"></video>
       <br/>
-
+      <ul></ul>
       <button type="button" id="download">Download</button>
       </br>      
     </div>
@@ -1172,6 +1172,7 @@
             window.setInterval(
                 ((fpsBox, track) => {
                   fpsBox.textContent = track.getSettings().frameRate.toFixed(1);
+                  console.log(`Frame Rate: ${fpsBox.textContent} fps`);
                 }).bind(null, videoFps, stream.getTracks()[0]),
                 1000,
             ),
