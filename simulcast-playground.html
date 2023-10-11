@@ -286,10 +286,6 @@
     <h3> The recorded video: </h3>
     <div>
       <video controls playsinline id="videoRecorded"></video>
-      <br/>
-      <label for="fileName">To download the recorded video enter a file name:</label>
-      </br>
-      <input type="text" id="fileName" placeholder="Enter file name">
       <button type="button" id="download">Download</button>
     </div>
 
@@ -386,6 +382,7 @@
       // global variables
       let pc1;
       let pc2;
+      var downloadName = {};
       let stream;
       let transceiver;
       let sender;
@@ -1079,6 +1076,10 @@
         mediaRecorder.start()
         div.querySelector('#buttonStart').setAttribute('disabled', '')
         div.querySelector('#buttonStop').removeAttribute('disabled')
+        //downloadName["layer"] = track_num;   // we dont want this currently but can be added later on
+        downloadName["bps"] = div.querySelector('#maxBitrate').value;
+        downloadName["fps"] = div.querySelector('#maxFramerate').value;
+        //downloadName["scale"] = div.querySelector('#scaleResolutionDownBy').value;  // we dont want this currently but can be added later on
       }
 
       async function buttonStopFunc(div) {
@@ -1095,6 +1096,7 @@
       }
 
       function confirmFileName() {
+        // Can be used when manuel name to the file should be given
         return new Promise((resolve) => {
             const fileNameInput = document.getElementById('fileName').value;
             if (fileNameInput.trim() === "") {
@@ -1105,17 +1107,35 @@
           });
       }
 
-      document.querySelector('#download').onclick = async () => {
-        let usedcodec;
+      async function getName() {
+        // Get the used codec
         const test = await pc1.getStats(null).then(stats => {
               stats.forEach(element => {
                   if (element.mimeType != undefined){
-                    usedcodec = element.mimeType.split("/")[1];
+                    downloadName["codec"] = element.mimeType.split("/")[1];
                   }
               })});
-        console.log(usedcodec);
         
-        const fileName = await confirmFileName();
+        const concatenatedPairs = [];
+
+        Object.keys(downloadName).forEach(key => {
+          if (key != "codec"){
+            const pair = `${key}:${downloadName[key]}`;
+            concatenatedPairs.push(pair);
+          } else {
+            const pair = `${downloadName[key]}`;
+            concatenatedPairs.push(pair);
+          };
+          
+        });
+
+        // Join the array using '__' as a delimiter
+        const name = concatenatedPairs.join('_');
+        return name;
+      } 
+
+      document.querySelector('#download').onclick = async () => {
+        fileName = await getName();
 
         const blob = new Blob(recordedChunks, {'type': 'video/webm'});  // combines the recorded chunks to a single blob
         const url = URL.createObjectURL(blob);
