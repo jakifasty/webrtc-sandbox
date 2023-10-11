@@ -399,6 +399,7 @@
       let bookmarkDevice;
       let prevReport = null;
       const intervals = [];
+      let sharingOption;
 
       const stopPeerConnection = () => {
         if (pc1) {
@@ -884,6 +885,9 @@
 
             stream.getVideoTracks()[0].contentHint = contentHint.value;
 
+            const videoTrack = stream.getVideoTracks()[0];
+            sharingOption = videoTrack.getSettings().displaySurface;
+
             await setStream(
                 videoSource,
                 videoSourceSize,
@@ -1083,6 +1087,13 @@
         downloadName["bps"] = div.querySelector('#maxBitrate').value;
         downloadName["fps"] = div.querySelector('#maxFramerate').value;
         //downloadName["scale"] = div.querySelector('#scaleResolutionDownBy').value;  // we dont want this currently but can be added later on
+        
+        if (sharingOption != 'undefined'){
+          downloadName["sharingOption"] = sharingOption;
+        }
+        else{ 
+          downloadName["sharingOption"] = "camera";
+        }
       }
 
       async function buttonStopFunc(div) {
