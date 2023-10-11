@@ -1106,6 +1106,15 @@
       }
 
       document.querySelector('#download').onclick = async () => {
+        let usedcodec;
+        const test = await pc1.getStats(null).then(stats => {
+              stats.forEach(element => {
+                  if (element.mimeType != undefined){
+                    usedcodec = element.mimeType.split("/")[1];
+                  }
+              })});
+        console.log(usedcodec);
+        
         const fileName = await confirmFileName();
 
         const blob = new Blob(recordedChunks, {'type': 'video/webm'});  // combines the recorded chunks to a single blob
